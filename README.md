@@ -101,6 +101,8 @@ If you are a complete Docker newbie, you should probably follow the [series of t
 * [`docker rm`](https://docs.docker.com/engine/reference/commandline/rm) deletes a container.
 * [`docker update`](https://docs.docker.com/engine/reference/commandline/update/) updates a container's resource limits.
 
+Normally if you run a container without options it will start and stop immediately, if you want keep it running you can use the command, `docker run -td container_id` this will use the option `-t` that will allocate a pseudo-TTY session and `-d` that will detach automatically the container (run container in background and print container ID).
+
 If you want a transient container, `docker run --rm` will remove the container after it stops.
 
 If you want to map a directory on the host to a docker container, `docker run -v $HOSTDIR:$DOCKERDIR`. Also see [Volumes](https://github.com/wsargent/docker-cheat-sheet/#volumes).
@@ -108,6 +110,8 @@ If you want to map a directory on the host to a docker container, `docker run -v
 If you want to remove also the volumes associated with the container, the deletion of the container must include the `-v` switch like in `docker rm -v`.
 
 There's also a [logging driver](https://docs.docker.com/engine/admin/logging/overview/) available for individual containers in docker 1.10. To run docker with a custom log driver (i.e., to syslog), use `docker run --log-driver=syslog`.
+
+Another useful option is `docker run --name yourname docker_image` because when you specify the `--name` inside the run command this will allow you to start and stop a container by calling it with the name the you specified when you created it.
 
 ### Starting and Stopping
 
@@ -236,7 +240,7 @@ docker load < my_image.tar.gz
 
 Save an existing image:
 ```
-docker save my_image:my_tag > my_image.tar.gz
+docker save my_image:my_tag | gzip > my_image.tar.gz
 ```
 
 ### Import/Export container
@@ -248,7 +252,7 @@ cat my_container.tar.gz | docker import - my_image:my_tag
 
 Export an existing container:
 ```
-docker export my_container > my_container.tar.gz
+docker export my_container | gzip > my_container.tar.gz
 ```
 
 ### Difference between loading a saved image and importing an exported container as an image ?
@@ -325,7 +329,7 @@ Here are some common text editors and their syntax highlighting modules you coul
 
 * [.dockerignore](https://docs.docker.com/engine/reference/builder/#dockerignore-file)
 * [FROM](https://docs.docker.com/engine/reference/builder/#from) Sets the Base Image for subsequent instructions.
-* [MAINTAINER](https://docs.docker.com/engine/reference/builder/#maintainer) Set the Author field of the generated images..
+* [MAINTAINER (deprecated - use LABEL instead)](https://docs.docker.com/engine/reference/builder/#/maintainer-deprecated) Set the Author field of the generated images.
 * [RUN](https://docs.docker.com/engine/reference/builder/#run) execute any commands in a new layer on top of the current image and commit the results.
 * [CMD](https://docs.docker.com/engine/reference/builder/#cmd) provide defaults for an executing container.
 * [EXPOSE](https://docs.docker.com/engine/reference/builder/#expose) informs Docker that the container listens on the specified network ports at runtime.  NOTE: does not actually make ports accessible.
@@ -565,6 +569,30 @@ There is an AppArmor policy generator called [bane](https://github.com/jfrazelle
 Sources:
 
 * [15 Docker Tips in 5 minutes](http://sssslide.com/speakerdeck.com/bmorearty/15-docker-tips-in-5-minutes)
+* [CodeFresh Everyday Hacks Docker](https://codefresh.io/blog/everyday-hacks-docker/)
+
+### Prune
+
+The new [Data Management Commands](https://github.com/docker/docker/pull/26108) have landed as of Docker 1.13:
+
+* `docker system prune`
+* `docker volume prune`
+* `docker network prune`
+* `docker container prune`
+* `docker image prune`
+
+### df 
+
+`docker system df` presents a summary of the space currently used by different docker objects.
+
+### Heredoc Docker Container
+
+```
+docker build -t htop - << EOF
+FROM alpine
+RUN apk --no-cache add htop
+EOF
+```
 
 ### Last Ids
 
